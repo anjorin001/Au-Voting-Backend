@@ -5,6 +5,7 @@ const router = express.Router();
 
 router.use(authenticationMiddleware)
 
+// Profile routes
 router.get("/profile", getProfile);
 router.patch("/update-profile", updatePassword);
 router.delete("/delete-profile", deleteProfile);

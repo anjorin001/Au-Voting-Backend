@@ -17,7 +17,7 @@ const electionSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-// TODO understand ow this is dynamuc
+  // TODO understand ow this is dynamuc
   faculty: {
     type: String,
     enum: availableFaculties,
@@ -43,13 +43,22 @@ const electionSchema = new mongoose.Schema({
     required: true,
   },
 
-  candidates: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "user",
-      required: true,
+  candidates: {
+    type: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "user",
+        required: true,
+      },
+    ],
+    validate: {
+      validator: function (candidates) {
+        return candidates.length >= 2;
+      },
+      message: "An election must have at least 2 candidates.",
     },
-  ],
+    required: true,
+  },
 
   startTime: {
     type: Date,
