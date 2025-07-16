@@ -65,9 +65,14 @@ const getFacultyElectionResults = async (req, res, next) => {
 const createGlobalElection = async (req, res, next) => {
   try {
     const createdElection = await ausaService.createGlbElection(req.validated); //query
-    return sendSuccess(res, "Global election created successfully", {
-      election: createdElection,
-    }, 201); // Added 201 status code for creation
+    return sendSuccess(
+      res,
+      "Global election created successfully",
+      {
+        election: createdElection,
+      },
+      201
+    ); // Added 201 status code for creation
   } catch (err) {
     next(err);
   }
@@ -88,6 +93,20 @@ const getGlobalCandidates = async (req, res, next) => {
   }
 };
 
+const getFaculties = async (req, res, next) => {
+  try {
+    const { facultyId } = req.validated; //query
+    const faculties = await ausaService.getFaculties({
+      facultyId,
+    });
+    return sendSuccess(res, "faculty retrieved successfully", {
+      faculties,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   getAusaMetrics,
   getGlobalElections,
@@ -95,5 +114,6 @@ module.exports = {
   getFacultyElections,
   getFacultyElectionResults,
   createGlobalElection,
-  getGlobalCandidates
+  getGlobalCandidates,
+  getFaculties
 };

@@ -11,10 +11,9 @@ const hashPassword = async (password) => {
   }
 };
 
-const comparePassword = async (password, user) => {
+const comparePassword = async (newPassword, existingPassword) => {
   try {
-    const encyptedPassword = user.password;
-    const passMatch = await bcrypt.compare(password, encyptedPassword);
+    const passMatch = await bcrypt.compare(newPassword, existingPassword);
     return passMatch;
   } catch (err) {
     throw err;

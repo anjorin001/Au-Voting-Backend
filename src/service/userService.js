@@ -96,7 +96,7 @@ class userService {
     const user = await User.findById(userId);
     if (!user) throw new NotFoundError("User not found");
 
-    const isCurrentPasswordValid = await comparePassword(currentPassword, user);
+    const isCurrentPasswordValid = await comparePassword(currentPassword, user.password);
     if (!isCurrentPasswordValid)
       throw new UnauthorizedError("Current password is incorrect");
 

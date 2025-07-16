@@ -1,17 +1,24 @@
+const { NotFoundError } = require("../exceptions/baseError");
 const Election = require("../models/electionModel");
+const Faculty = require("../models/facultyModel");
 const User = require("../models/userModel");
 
 class AusaService {
   async ausaMetrics() {
     try {
-      const [activeUsers, verifiedUsers, ongoingVotes, previousVotes, upcomingVotes] = 
-        await Promise.all([
-          User.countDocuments(),
-          User.countDocuments({ verified: true }),
-          Election.countDocuments({ status: "ongoing" }),
-          Election.countDocuments({ status: "ended" }),
-          Election.countDocuments({ status: "upcoming" })
-        ]);
+      const [
+        activeUsers,
+        verifiedUsers,
+        ongoingVotes,
+        previousVotes,
+        upcomingVotes,
+      ] = await Promise.all([
+        User.countDocuments(),
+        User.countDocuments({ verified: true }),
+        Election.countDocuments({ status: "ongoing" }),
+        Election.countDocuments({ status: "ended" }),
+        Election.countDocuments({ status: "upcoming" }),
+      ]);
 
       return {
         activeUsers,
@@ -55,7 +62,7 @@ class AusaService {
 
   async facultyElections({ faculty = null } = {}) {
     const filter = { general: false };
-    if (faculty) filter.faculty = faculty;// TODO Add Faculty Validation in validator
+    if (faculty) filter.faculty = faculty; // TODO Add Faculty Validation in validator
 
     const facultyElections = await Election.find(filter)
       .select("-createdBy -createdAt")
@@ -105,6 +112,23 @@ class AusaService {
       .sort({ createdAt: -1 });
 
     return candidates;
+  }
+
+  async getFaculties({ facultyId = null } = {}) {
+    if (facultyId) {
+      const faculty = await Faculty.findById(facultyId).populate(
+        "admin",
+        "firstname surname email role"
+      );
+      if (!faculty) throw new NotFoundError("Faculty not found");
+      return faculty;
+    }
+
+    const faculties = await Faculty.find({}).populate(
+      "admin",
+      "firstname surname email role"
+    );
+    return faculties;
   }
 }
 

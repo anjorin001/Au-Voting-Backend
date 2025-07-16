@@ -3,8 +3,8 @@ const availableFaculties = [
   "Faculty of Arts",
   "Faculty of Engineering",
   "Faculty of Basic Medical Sciences",
-  "Faculty of Business and Social Sciences"
+  "Faculty of Business and Social Sciences",
+  "Faculty of Law",
 ];
 
 module.exports = { availableFaculties };
-
