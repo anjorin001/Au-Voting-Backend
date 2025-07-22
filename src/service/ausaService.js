@@ -1,7 +1,8 @@
-const { NotFoundError } = require("../exceptions/baseError");
+const { NotFoundError, UnauthorizedError } = require("../exceptions/baseError");
 const Election = require("../models/electionModel");
 const Faculty = require("../models/facultyModel");
 const User = require("../models/userModel");
+const verifiedUser = require("../util/VerifyChecker");
 
 class AusaService {
   async ausaMetrics() {
@@ -124,11 +125,74 @@ class AusaService {
       return faculty;
     }
 
-    const faculties = await Faculty.find({}).populate(
-      "admin",
-      "firstname surname email role"
-    );
+    const faculties = await Faculty.find({});
     return faculties;
+  }
+
+  async getuserToPromote(matricNo, facultyName) {
+    const user = await User.findOne({ matricNo, facultyName }).select(
+      "verifed firstname surname matricNo"
+    );
+    if (!user) throw new NotFoundError("user not found");
+    return user;
+  }
+
+  async addFacultyAdmin(matricNo, facultyName) {
+    const user = await User.findOne({ matricNo, faculty: facultyName }).select(
+      "firstname surname matricNo"
+    );
+    if (!user) throw new NotFoundError("user not found");
+
+    const verifed = await verifiedUser(user);
+    if (!verifed) throw new UnauthorizedError("user not verified");
+
+    user.role = "admin";
+    await user.save();
+
+    const faculty = await Faculty.findOne({ name: facultyName });
+    faculty.admins.push(user._id);
+
+    await faculty.save();
+    // TODO send email to user email regarding role onboarding
+
+    const plainUser = user.toObject();
+    const { password, participatedElection, bio, ...addedUser } = plainUser;
+
+    return addedUser;
+  }
+
+  async getFacultyAdmin(facultyName) {
+    const facultyAdmin = await Faculty.findOne({ name: facultyName }).populate(
+      "admins",
+      "firstname surname matricNo faculty"
+    );
+    if (!facultyAdmin) throw new NotFoundError("faculty not found");
+
+    return facultyAdmin;
+  }
+
+  async removeFacultyAdmin(matricNo, facultyName) {
+    const user = await User.findOne({ matricNo, faculty: facultyName });
+
+    if (!user) throw new NotFoundError("User not found");
+
+    user.role = "user";
+    await user.save();
+
+    const faculty = await Faculty.findOne({ name: facultyName });
+
+    if (!faculty) throw new NotFoundError("Faculty not found");
+
+    faculty.admins = faculty.admins.filter(
+      (adminId) => adminId.toString() !== user._id.toString()
+    );
+
+    await faculty.save();
+
+    const plainUser = user.toObject();
+    const { password, participatedElection, bio, ...removedUser } = plainUser;
+
+    return removedUser;
   }
 }
 

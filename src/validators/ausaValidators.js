@@ -167,6 +167,40 @@ const paginationValidator = Joi.object({
     "any.only": "{#label} must be one of the allowed values.",
   });
 
+const facultyAdminQueryValidator = Joi.object({
+  facultyName: Joi.string()
+    .valid(...availableFaculties)
+    .required()
+    .label("Faculty Name"),
+})
+  .prefs({ presence: "required" })
+  .messages({
+    "string.base": "{#label} must be a text.",
+    "string.empty": "{#label} cannot be empty.",
+    "any.only": "{#label} must be one of the available faculties.",
+    "any.required": "{#label} is required.",
+  });
+
+const removeFacultyAdminValidator = Joi.object({
+  matricNo: Joi.string()
+    .pattern(/^[A-Z]{2,3}\/\d{4}\/\d{3,4}$/)
+    .required()
+    .label("Matriculation Number"),
+  
+  facultyName: Joi.string()
+    .valid(...availableFaculties)
+    .required()
+    .label("Faculty Name"),
+})
+  .prefs({ presence: "required" })
+  .messages({
+    "string.base": "{#label} must be a text.",
+    "string.empty": "{#label} cannot be empty.",
+    "string.pattern.base": "{#label} must be in the format XX/YYYY/XXX.",
+    "any.only": "{#label} must be one of the available faculties.",
+    "any.required": "{#label} is required.",
+  });
+
 module.exports = {
   globalElectionsQueryValidator,
   facultyElectionsQueryValidator,
@@ -175,5 +209,7 @@ module.exports = {
   globalCandidatesQueryValidator,
   facultyManagementValidator,
   paginationValidator,
+  facultyAdminQueryValidator,
+  removeFacultyAdminValidator,
 };
 
