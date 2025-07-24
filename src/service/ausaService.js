@@ -36,7 +36,7 @@ class AusaService {
   async globalElections({ status = null } = {}) {
     //TODO use this for normal user get elections
     const filter = { general: true };
-    if (status) filter.status = status; // TODO 6. Add Input Validation in validator
+    if (status) filter.status = status; // TODO 6. Add Input Validation in validator for status .. and other endpotn that requires it
 
     const globalElections = await Election.find(filter)
       .select("-faculty -createdBy -createdAt")
@@ -49,7 +49,7 @@ class AusaService {
   async globalElectionResults({ electionId }) {
     if (!electionId) throw new ValidationError("Election ID is required");
 
-    const election = await Election.findById(electionId)
+    const election = await Election.findById(electionId) //TODO ensure that election id passed is global
       .select("result title status candidates general")
       .populate("candidates", "firstname surname");
 
@@ -61,11 +61,11 @@ class AusaService {
     return election;
   }
 
-  async facultyElections({ faculty = null } = {}) {
+  async facultyElections({ facultyName = null } = {}) {
     const filter = { general: false };
-    if (faculty) filter.faculty = faculty; // TODO Add Faculty Validation in validator
+    if (facultyName) filter.name = facultyName; // TODO Add Faculty Validation in validator
 
-    const facultyElections = await Election.find(filter)
+    const facultyElections = await Election.find(filter) // TODO add stauts filter for election ongoing etc
       .select("-createdBy -createdAt")
       .populate("candidates", "firstname surname faculty");
 
@@ -103,9 +103,9 @@ class AusaService {
     return { election: newElection };
   }
 
-  async getGlbCandidates({ faculty = null, matricNo = null } = {}) {
-    const filter = {};
-    if (faculty) filter.faculty = faculty;
+  async getGlbCandidates({ facultyName = null, matricNo = null } = {}) {
+    const filter = { deleted: false };
+    if (facultyName) filter.faculty = facultyName;
     if (matricNo) filter.matricNo = matricNo;
 
     const candidates = await User.find(filter)
@@ -130,17 +130,22 @@ class AusaService {
   }
 
   async getuserToPromote(matricNo, facultyName) {
-    const user = await User.findOne({ matricNo, facultyName }).select(
-      "verifed firstname surname matricNo"
-    );
+    const user = await User.findOne({
+      matricNo,
+      faculty: facultyName,
+      deleted: false,
+    }).select("verifed firstname surname matricNo");
+
     if (!user) throw new NotFoundError("user not found");
     return user;
   }
 
   async addFacultyAdmin(matricNo, facultyName) {
-    const user = await User.findOne({ matricNo, faculty: facultyName }).select(
-      "firstname surname matricNo"
-    );
+    const user = await User.findOne({
+      matricNo,
+      faculty: facultyName,
+      deleted: false,
+    }).select("firstname surname matricNo");
     if (!user) throw new NotFoundError("user not found");
 
     const verifed = await verifiedUser(user);
@@ -172,7 +177,11 @@ class AusaService {
   }
 
   async removeFacultyAdmin(matricNo, facultyName) {
-    const user = await User.findOne({ matricNo, faculty: facultyName });
+    const user = await User.findOne({
+      matricNo,
+      faculty: facultyName,
+      deleted: false,
+    });
 
     if (!user) throw new NotFoundError("User not found");
 

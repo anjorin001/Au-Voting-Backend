@@ -30,6 +30,10 @@ const userSchema = new mongoose.Schema({
     enum: availableFaculties,
   },
 
+  department: {
+    type: String,
+  }, // TODO work on department field -- to respect faculty (csc only in fos)
+
   password: {
     type: String,
     required: true,
@@ -67,7 +71,17 @@ const userSchema = new mongoose.Schema({
 
   Active: {
     type: Boolean,
-    default: true
+    default: true,
+  },
+
+  deleted: {
+    type: Boolean,
+    default: false, //TODO make sure all get users request is deleted flase
+  },
+
+  deletedAt: {
+    type: Date,
+    default: null,
   },
 
   createdAt: {

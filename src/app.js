@@ -16,9 +16,14 @@ app.use(cors({ origin: "*" }));
 const port = process.env.PORT;
 
 const authRoute = require("./routes/auth.route");
+const userRoute = require("./routes/user.route");
+const superAdminRoute = require("./routes/ausaDashboard.route");
 const undefinedRoute = require("./middlewares/undefinedRoutes");
+const baseUrl = "/api/v1";
 
-app.use("/api/v1/auth", authRoute);
+app.use(`${baseUrl}/auth`, authRoute);
+app.use(`${baseUrl}/user`, userRoute);
+app.use(`${baseUrl}/super-admin`, superAdminRoute);
 
 app.use(undefinedRoute);
 

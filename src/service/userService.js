@@ -10,9 +10,26 @@ const User = require("../models/userModel");
 class userService {
   async signup(data) {
     const { firstname, surname, email, password, matricNo } = data;
-    const foundUser = await User.findOne({ $or: [{ matricNo }, { email }] });
 
-    if (foundUser) throw new ConflictError("user already exist");
+    const foundUser = await User.findOne({
+      $or: [{ matricNo }, { email }],
+    });
+
+    if (foundUser && !foundUser.deleted) {
+      throw new ConflictError("User already exists");
+    }
+
+    if (foundUser && foundUser.deleted) {
+      foundUser.firstname = firstname;
+      foundUser.surname = surname;
+      foundUser.password = await hashPassword(password);
+      foundUser.deleted = false;
+      foundUser.deletedAt = null;
+      await foundUser.save();
+
+      const token = await generateToken(foundUser);
+      return token;
+    }
 
     const hashedPassword = await hashPassword(password);
 
@@ -31,15 +48,17 @@ class userService {
 
   async login(data) {
     const { password, identifier } = data;
+
     const foundUser = await User.findOne({
       $or: [{ email: identifier }, { matricNo: identifier }],
+      deleted: false, 
     });
 
-    if (!foundUser) throw new UnauthorizedError("Invalid credidential");
+    if (!foundUser) throw new UnauthorizedError("Invalid credentials");
 
-    const verifyPassword = await comparePassword(password, foundUser);
+    const verifyPassword = await comparePassword(password, foundUser.password);
 
-    if (!verifyPassword) throw new UnauthorizedError("Invalid credidential");
+    if (!verifyPassword) throw new UnauthorizedError("Invalid credentials");
 
     const token = await generateToken(foundUser);
     return token;
@@ -47,7 +66,7 @@ class userService {
 
   async getProfile({ userId }) {
     const user = await User.findById(userId).select(
-      "-password -participatedElection -createdAt"
+      "-password -participatedElection -createdAt -__v"
     );
 
     if (!user) throw new NotFoundError(" user not found, invalid userId");
@@ -56,22 +75,44 @@ class userService {
   }
 
   async updateProfile({ userId, newData }) {
+    // Load the current user to compare values
+    const user = await User.findById(userId);
+    if (!user) throw new NotFoundError("user not found, invalid userId");
+
+    // Check if critical identity fields are being changed
+    const shouldInvalidateVerification =
+      (newData.firstname && newData.firstname !== user.firstname) ||
+      (newData.surname && newData.surname !== user.surname) ||
+      (newData.department && newData.department !== user.department); // department not yet in use
+
+    // Build the update object
+    const updatePayload = { ...newData };
+    if (shouldInvalidateVerification) {
+      updatePayload.verified = false;
+    }
+
+    // Perform one update
     const updatedProfile = await User.findByIdAndUpdate(
       userId,
-      { $set: newData },
+      { $set: updatePayload },
       { new: true, runValidators: true }
-    ).select("-password -participatedElection");
-
-    if (!updatedProfile)
-      throw new NotFoundError("user not found, invalid userId");
+    ).select("-password -participatedElection -__v");
 
     return updatedProfile;
   }
 
   async deleteProfile({ userId }) {
-    const deletedProfile = await User.findByIdAndDelete(userId).select(
-      "-password -participatedElection"
-    );
+    const deletedProfile = await User.findByIdAndUpdate(
+      userId,
+      {
+        $set: {
+          Active: false,
+          deleted: true,
+          deletedAt: new Date(),
+        },
+      },
+      { new: true, runValidators: true }
+    ).select("-password -participatedElection");
 
     if (!deletedProfile)
       throw new NotFoundError("user not found, invalid userId");
@@ -96,7 +137,10 @@ class userService {
     const user = await User.findById(userId);
     if (!user) throw new NotFoundError("User not found");
 
-    const isCurrentPasswordValid = await comparePassword(currentPassword, user.password);
+    const isCurrentPasswordValid = await comparePassword(
+      currentPassword,
+      user.password
+    );
     if (!isCurrentPasswordValid)
       throw new UnauthorizedError("Current password is incorrect");
 

@@ -4,7 +4,7 @@ const { sendSuccess } = require("../util/baseResponse");
 const getProfile = async (req, res, next) => {
   try {
     const user = await userAuthService.getProfile({ userId: req.user.userId });
-    return sendSuccess(res, "Profile retrieved successfully", { user });
+    return sendSuccess(res, "Profile retrieved successfully", 200, { user });
   } catch (err) {
     next(err);
   }
@@ -16,7 +16,7 @@ const updateProfile = async (req, res, next) => {
       userId: req.user.userId,
       newData: req.validated,
     });
-    return sendSuccess(res, "Profile updated successfully", {
+    return sendSuccess(res, "Profile updated successfully", 200, {
       user: updatedUser,
     });
   } catch (err) {
@@ -29,7 +29,7 @@ const deleteProfile = async (req, res, next) => {
     const deletedUser = await userAuthService.deleteProfile({
       userId: req.user.userId,
     });
-    return sendSuccess(res, "Profile deleted successfully", {
+    return sendSuccess(res, "Profile deleted successfully", 200, {
       user: deletedUser,
     });
   } catch (err) {
@@ -55,7 +55,7 @@ const getVerifyStatus = async (req, res, next) => {
     const status = await userAuthService.verifyStatus({
       userId: req.user.userId,
     });
-    return sendSuccess(res, "Verification status retrieved", { status });
+    return sendSuccess(res, "Verification status retrieved", 200, { status });
   } catch (err) {
     next(err);
   }
@@ -79,7 +79,7 @@ module.exports = {
   getProfile,
   updateProfile,
   deleteProfile,
-  verifyProfile,
+  // verifyProfile,
   getVerifyStatus,
   updatePassword,
 };

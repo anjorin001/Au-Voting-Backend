@@ -1,12 +1,25 @@
-
 const Joi = require("joi");
 const { availableFaculties } = require("../helper/facultys");
 
 const updateProfileValidator = Joi.object({
-  firstname: Joi.string().min(2).max(50).label("First name"),
-  surname: Joi.string().min(2).max(50).label("Last name"),
+  firstname: Joi.string()
+    .trim()
+    .pattern(/^[^\s]+$/, { name: "no spaces" })
+    .label("First name")
+    .messages({
+      "string.pattern.name": "{{#label}} must not contain spaces",
+    }),
+  surname: Joi.string()
+    .trim()
+    .pattern(/^[^\s]+$/, { name: "no spaces" })
+    .label("Last name")
+    .messages({
+      "string.pattern.name": "{{#label}} must not contain spaces",
+    }),
   email: Joi.string().email().label("Email"),
-  faculty: Joi.string().valid(...availableFaculties).label("Faculty"),
+  faculty: Joi.string()
+    .valid(...availableFaculties)
+    .label("Faculty"),
   bio: Joi.string().max(500).label("Bio"),
 })
   .min(1) // At least one field must be provided
@@ -22,11 +35,12 @@ const updateProfileValidator = Joi.object({
 
 const updatePasswordValidator = Joi.object({
   currentPassword: Joi.string().required().label("Current password"),
-  newPassword: Joi.string().min(6).max(128).required().label("New password"),
-  confirmPassword: Joi.string()
-    .valid(Joi.ref('newPassword'))
-    .required()
-    .label("Confirm password"),
+  newPassword: Joi.string()
+  .min(6)
+  .max(128)
+  .pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]+$"))
+  .required()
+  .label("New password")
 })
   .prefs({ presence: "required" })
   .messages({
@@ -36,6 +50,7 @@ const updatePasswordValidator = Joi.object({
     "string.max": "{#label} must not exceed {#limit} characters.",
     "any.only": "{#label} must match the new password.",
     "any.required": "{#label} is required.",
+    "string.pattern.base":"Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)",
   });
 
 const userIdParamValidator = Joi.object({
@@ -43,17 +58,15 @@ const userIdParamValidator = Joi.object({
     .pattern(/^[0-9a-fA-F]{24}$/)
     .required()
     .label("User ID"),
-})
-  .messages({
-    "string.base": "{#label} must be a text.",
-    "string.empty": "{#label} cannot be empty.",
-    "string.pattern.base": "{#label} must be a valid MongoDB ObjectId.",
-    "any.required": "{#label} is required.",
-  });
+}).messages({
+  "string.base": "{#label} must be a text.",
+  "string.empty": "{#label} cannot be empty.",
+  "string.pattern.base": "{#label} must be a valid MongoDB ObjectId.",
+  "any.required": "{#label} is required.",
+});
 
 module.exports = {
   updateProfileValidator,
   updatePasswordValidator,
   userIdParamValidator,
 };
-

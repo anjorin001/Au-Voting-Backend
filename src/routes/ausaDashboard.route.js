@@ -55,7 +55,7 @@ router.get("/faculty", getFaculties);
 // add admin, remove admin
 router.get("/for-faculty-admin", validate(globalCandidatesQueryValidator), getUserToPromote)
 router.post("/assign-faculty-admin",validate(globalCandidatesQueryValidator), addfacultyAdmin )
-router.get("/faculty-admin", validate(facultyAdminQueryValidator), getFacultyAdmin);
+router.get("/faculty-admin/:facultyId", validate(facultyAdminQueryValidator), getFacultyAdmin);
 router.patch("/remove-faculty-admin", validate(removeFacultyAdminValidator), removeFacultyAdmin);
 
 module.exports = router;

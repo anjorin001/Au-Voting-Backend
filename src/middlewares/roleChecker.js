@@ -1,4 +1,4 @@
-const { UnauthorizedError } = require("../exception/baseError");
+const { UnauthorizedError } = require("../exceptions/baseError");
 
 function checkRole(requiredRole) {
   return function (req, res, next) {

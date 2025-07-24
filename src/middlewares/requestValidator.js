@@ -1,4 +1,4 @@
-const { ErrorResponse } = require("../util/baseResponse");
+const { sendError } = require("../util/baseResponse");
 
 function validate(schema) {
   return (req, res, next) => {
@@ -11,9 +11,12 @@ function validate(schema) {
     });
 
     if (error) {
-      return new ErrorResponse(res, 400, "Validation error", {
-        errors: error.details.map((d) => d.message.replace(/['"]/g, "")),
-      }).send();
+      return sendError(
+        res,
+        "Validation error",
+        400,
+        error.details.map((d) => d.message.replace(/['"]/g, ""))
+      );
     }
 
     req.validated = value;

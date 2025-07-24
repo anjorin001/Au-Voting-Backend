@@ -120,7 +120,7 @@ const getFaculties = async (req, res, next) => {
 const getUserToPromote = async (req, res, next) => {
   try {
     const { matricNo, facultyName } = req.validated;
-    const user = await ausaService.getGlbAdmin(matricNo, facultyName);
+    const user = await ausaService.getuserToPromote(matricNo, facultyName);
     return sendSuccess(res, `User ${user.firstname} ${user.surname} (${matricNo}) eligible for faculty admin promotion`, {
       user,
     });
