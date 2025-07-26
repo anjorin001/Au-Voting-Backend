@@ -14,7 +14,7 @@ const globalElectionsQueryValidator = Joi.object({
   });
 
 const facultyElectionsQueryValidator = Joi.object({
-  faculty: Joi.string()
+  facultyName: Joi.string()
     .valid(...availableFaculties)
     .optional()
     .label("Faculty"),

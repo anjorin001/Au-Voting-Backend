@@ -1,4 +1,5 @@
 const { NotFoundError, UnauthorizedError } = require("../exceptions/baseError");
+const validateCandidate = require("../helper/candidateChecker");
 const Election = require("../models/electionModel");
 const Faculty = require("../models/facultyModel");
 const User = require("../models/userModel");
@@ -87,20 +88,25 @@ class AusaService {
     return election;
   }
 
-  async createGlbElection(electData) {
+  async createGlbElection(electData, createdBy) {
     const { title, general, faculty, candidates, startTime, endTime } =
       electData;
-    const newElection = await Election.create({
-      title,
-      general,
-      faculty,
-      candidates,
-      startTime,
-      endTime,
-      createdBy,
-    });
 
-    return { election: newElection };
+    const candidatesValid = await validateCandidate(candidates);
+
+    if (candidatesValid) {
+      const newElection = await Election.create({
+        title,
+        general,
+        faculty,
+        candidates,
+        startTime,
+        endTime,
+        createdBy,
+      });
+
+      return { election: newElection };
+    }
   }
 
   async getGlbCandidates({ facultyName = null, matricNo = null } = {}) {

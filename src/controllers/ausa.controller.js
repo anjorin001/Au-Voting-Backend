@@ -4,7 +4,7 @@ const { sendSuccess } = require("../util/baseResponse");
 const getAusaMetrics = async (req, res, next) => {
   try {
     const metrics = await ausaService.ausaMetrics();
-    return sendSuccess(res, "AUSA dashboard metrics retrieved successfully", { metrics });
+    return sendSuccess(res, "AUSA dashboard metrics retrieved successfully", 200, { metrics });
   } catch (err) {
     next(err);
   }
@@ -15,7 +15,7 @@ const getGlobalElections = async (req, res, next) => {
     const { status } = req.validated;
     const globalElections = await ausaService.globalElections({ status });
     const statusText = status ? ` with status '${status}'` : '';
-    return sendSuccess(res, `Global elections${statusText} retrieved successfully`, {
+    return sendSuccess(res, `Global elections${statusText} retrieved successfully`, 200, {
       elections: globalElections,
       count: globalElections.length,
     });
@@ -28,7 +28,7 @@ const getGlobalElectionResults = async (req, res, next) => {
   try {
     const { electionId } = req.validated;
     const electionResults = await ausaService.globalElectionResults({ electionId });
-    return sendSuccess(res, `Global election '${electionResults.title}' results retrieved successfully`, {
+    return sendSuccess(res, `Global election '${electionResults.title}' results retrieved successfully`, 200, {
       election: electionResults,
     });
   } catch (err) {
@@ -41,7 +41,7 @@ const getFacultyElections = async (req, res, next) => {
     const { facultyName } = req.validated;
     const facultyElections = await ausaService.facultyElections({ facultyName });
     const facultyText = facultyName ? ` for ${facultyName} faculty` : ' for all faculties';
-    return sendSuccess(res, `Faculty elections${facultyText} retrieved successfully`, {
+    return sendSuccess(res, `Faculty elections${facultyText} retrieved successfully`, 200, {
       elections: facultyElections,
       count: facultyElections.length,
     });
@@ -54,7 +54,7 @@ const getFacultyElectionResults = async (req, res, next) => {
   try {
     const { electionId } = req.validated;
     const electionResults = await ausaService.facultyElectionResults({ electionId });
-    return sendSuccess(res, `Faculty election '${electionResults.title}' results retrieved successfully`, {
+    return sendSuccess(res, `Faculty election '${electionResults.title}' results retrieved successfully`, 200, {
       election: electionResults,
     });
   } catch (err) {
@@ -68,6 +68,7 @@ const createGlobalElection = async (req, res, next) => {
     return sendSuccess(
       res,
       `Global election '${req.validated.title}' created and scheduled successfully`,
+      201,
       {
         election: createdElection,
       },
@@ -92,7 +93,7 @@ const getGlobalCandidates = async (req, res, next) => {
       filterText = ` with matric number '${matricNo}'`;
     }
     
-    return sendSuccess(res, `Potential candidates${filterText} retrieved successfully`, {
+    return sendSuccess(res, `Potential candidates${filterText} retrieved successfully`, 200, {
       candidates: globalCandidates,
       count: globalCandidates.length,
     });
@@ -109,7 +110,7 @@ const getFaculties = async (req, res, next) => {
       ? `All faculties (${faculties.length}) retrieved successfully`
       : `Faculty '${faculties.name}' details retrieved successfully`;
     
-    return sendSuccess(res, message, {
+    return sendSuccess(res, message, 200, {
       [isArray ? 'faculties' : 'faculty']: faculties,
     });
   } catch (err) {
@@ -121,7 +122,7 @@ const getUserToPromote = async (req, res, next) => {
   try {
     const { matricNo, facultyName } = req.validated;
     const user = await ausaService.getuserToPromote(matricNo, facultyName);
-    return sendSuccess(res, `User ${user.firstname} ${user.surname} (${matricNo}) eligible for faculty admin promotion`, {
+    return sendSuccess(res, `User ${user.firstname} ${user.surname} (${matricNo}) eligible for faculty admin promotion`, 200, {
       user,
     });
   } catch (err) {
@@ -133,7 +134,7 @@ const addfacultyAdmin = async (req, res, next) => {
   try {
     const { matricNo, facultyName } = req.validated;
     const addedUser = await ausaService.addFacultyAdmin(matricNo, facultyName);
-    return sendSuccess(res, `${addedUser.firstname} ${addedUser.surname} successfully promoted to ${facultyName} faculty administrator`, {
+    return sendSuccess(res, `${addedUser.firstname} ${addedUser.surname} successfully promoted to ${facultyName} faculty administrator`, 200, {
       addedUser,
     });
   } catch (err) {
@@ -146,7 +147,7 @@ const getFacultyAdmin = async (req, res, next) => {
     const { facultyName } = req.validated;
     const admins = await ausaService.getFacultyAdmin(facultyName);
     const adminCount = admins.admin?.length || 0;
-    return sendSuccess(res, `${facultyName} faculty administrators (${adminCount}) retrieved successfully`, {
+    return sendSuccess(res, `${facultyName} faculty administrators (${adminCount}) retrieved successfully`, 200, {
       faculty: admins,
       adminCount,
     });
@@ -159,7 +160,7 @@ const removeFacultyAdmin = async (req, res, next) => {
   try {
     const { matricNo, facultyName } = req.validated;
     const user = await ausaService.removeFacultyAdmin(matricNo, facultyName);
-    return sendSuccess(res, `${user.firstname} ${user.surname} successfully removed from ${facultyName} faculty administration`, {
+    return sendSuccess(res, `${user.firstname} ${user.surname} successfully removed from ${facultyName} faculty administration`, 200, {
       user,
     });
   } catch (err) {
