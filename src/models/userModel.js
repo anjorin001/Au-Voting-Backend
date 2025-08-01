@@ -28,10 +28,12 @@ const userSchema = new mongoose.Schema({
   faculty: {
     type: String,
     enum: availableFaculties,
+    default: null
   },
 
   department: {
     type: String,
+    default: null,
   }, // TODO work on department field -- to respect faculty (csc only in fos)
 
   password: {
@@ -41,6 +43,7 @@ const userSchema = new mongoose.Schema({
 
   bio: {
     type: String,
+    default: null
   },
 
   role: {
@@ -54,20 +57,21 @@ const userSchema = new mongoose.Schema({
     default: false,
   },
 
-  participatedElection: [
-    {
-      electionId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "election",
-        required: true,
-      },
-      voted: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "user",
-        required: true,
-      },
-    },
-  ],
+  // TODO participatedElection not neeede here --votelog
+  // participatedElection: [ 
+  //   {
+  //     electionId: {
+  //       type: mongoose.Schema.Types.ObjectId,
+  //       ref: "election",
+  //       required: true,
+  //     },
+  //     voted: {
+  //       type: mongoose.Schema.Types.ObjectId,
+  //       ref: "user",
+  //       required: true,
+  //     },
+  //   },
+  // ],
 
   Active: {
     type: Boolean,

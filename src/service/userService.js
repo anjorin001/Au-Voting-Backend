@@ -9,7 +9,15 @@ const User = require("../models/userModel");
 
 class userService {
   async signup(data) {
-    const { firstname, surname, email, password, matricNo } = data;
+    const {
+      firstname,
+      surname,
+      email,
+      password,
+      matricNo,
+      faculty,
+      department,
+    } = data;
 
     const foundUser = await User.findOne({
       $or: [{ matricNo }, { email }],
@@ -37,6 +45,8 @@ class userService {
       firstname,
       surname,
       email,
+      faculty,
+      department,
       matricNo,
       password: hashedPassword,
       role: "user",
@@ -51,7 +61,7 @@ class userService {
 
     const foundUser = await User.findOne({
       $or: [{ email: identifier }, { matricNo: identifier }],
-      deleted: false, 
+      deleted: false,
     });
 
     if (!foundUser) throw new UnauthorizedError("Invalid credentials");

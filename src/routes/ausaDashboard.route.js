@@ -9,6 +9,7 @@ const {
   globalCandidatesQueryValidator,
   facultyAdminQueryValidator,
   removeFacultyAdminValidator,
+  getFacultiesQueryValidator,
 } = require("../validators/ausaValidators");
 const {
   getAusaMetrics,
@@ -35,27 +36,67 @@ router.use(checkRole("super-admin"));
 router.get("/metrics", getAusaMetrics);
 
 // Elections
-router.get("/global-elections", validate(globalElectionsQueryValidator), getGlobalElections);
-router.get("/faculty-elections", validate(facultyElectionsQueryValidator), getFacultyElections);
+router.get(
+  "/global-elections",
+  validate(globalElectionsQueryValidator),
+  getGlobalElections
+);
+router.get(
+  "/faculty-elections",
+  validate(facultyElectionsQueryValidator),
+  getFacultyElections
+);
 
 // Results
-router.get("/global-results/:electionId", validate(electionIdParamValidator), getGlobalElectionResults);
-router.get("/faculty-results/:electionId", validate(electionIdParamValidator), getFacultyElectionResults);
+router.get(
+  "/global-results/:electionId",
+  validate(electionIdParamValidator),
+  getGlobalElectionResults
+);
+router.get(
+  "/faculty-results/:electionId",
+  validate(electionIdParamValidator),
+  getFacultyElectionResults
+);
 
 // Global election creation
-router.post("/global-election", validate(createGlobalElectionValidator), createGlobalElection);
-router.get("/global-candidates", validate(globalCandidatesQueryValidator), getGlobalCandidates);
+router.post(
+  "/global-election",
+  validate(createGlobalElectionValidator),
+  createGlobalElection
+);
+router.get(
+  "/global-candidates",
+  validate(globalCandidatesQueryValidator),
+  getGlobalCandidates
+);
 
 // haandle faculty admin
 
 // get all faculty
 // get faculty by id
-router.get("/faculty", getFaculties);
+router.get("/faculty", validate(getFacultiesQueryValidator), getFaculties);
 
 // add admin, remove admin
-router.get("/for-faculty-admin", validate(globalCandidatesQueryValidator), getUserToPromote)
-router.post("/assign-faculty-admin",validate(globalCandidatesQueryValidator), addfacultyAdmin )
-router.get("/faculty-admin/:facultyId", validate(facultyAdminQueryValidator), getFacultyAdmin);
-router.patch("/remove-faculty-admin", validate(removeFacultyAdminValidator), removeFacultyAdmin);
+router.get(
+  "/for-faculty-admin",
+  validate(globalCandidatesQueryValidator),
+  getUserToPromote
+);
+router.post(
+  "/assign-faculty-admin",
+  validate(globalCandidatesQueryValidator),
+  addfacultyAdmin
+);
+router.get(
+  "/faculty-admin/:facultyId",
+  validate(facultyAdminQueryValidator),
+  getFacultyAdmin
+);
+router.patch(
+  "/remove-faculty-admin",
+  validate(removeFacultyAdminValidator),
+  removeFacultyAdmin
+);
 
 module.exports = router;

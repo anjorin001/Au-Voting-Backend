@@ -11,9 +11,9 @@ class AusaService {
       const [
         activeUsers,
         verifiedUsers,
-        ongoingVotes,
-        previousVotes,
-        upcomingVotes,
+        ongoingElections,
+        previousElections,
+        upcomingElections,
       ] = await Promise.all([
         User.countDocuments(),
         User.countDocuments({ verified: true }),
@@ -25,9 +25,9 @@ class AusaService {
       return {
         activeUsers,
         verifiedUsers,
-        ongoingVotes,
-        previousVotes,
-        upcomingVotes,
+        ongoingElections,
+        previousElections,
+        upcomingElections,
       };
     } catch (error) {
       throw new Error("Failed to fetch AUSA metrics");
@@ -50,7 +50,7 @@ class AusaService {
   async globalElectionResults({ electionId }) {
     if (!electionId) throw new ValidationError("Election ID is required");
 
-    const election = await Election.findById(electionId) //TODO ensure that election id passed is global
+    const election = await Election.findById(electionId)
       .select("result title status candidates general")
       .populate("candidates", "firstname surname");
 
@@ -122,16 +122,15 @@ class AusaService {
   }
 
   async getFaculties({ facultyId = null } = {}) {
-    if (facultyId) {
-      const faculty = await Faculty.findById(facultyId).populate(
-        "admin",
-        "firstname surname email role"
-      );
-      if (!faculty) throw new NotFoundError("Faculty not found");
-      return faculty;
-    }
+    //TODO  get facultyID not fetching based on id
+    console.log("faculty id", facultyId);
+    const filter = {};
+    if (facultyId) filter._id = facultyId;
 
-    const faculties = await Faculty.find({});
+    const faculties = await Faculty.find(filter).populate(
+      "admins",
+      "firstname surname email role"
+    );
     return faculties;
   }
 
@@ -140,7 +139,7 @@ class AusaService {
       matricNo,
       faculty: facultyName,
       deleted: false,
-    }).select("verifed firstname surname matricNo");
+    }).select("verified firstname surname matricNo");
 
     if (!user) throw new NotFoundError("user not found");
     return user;

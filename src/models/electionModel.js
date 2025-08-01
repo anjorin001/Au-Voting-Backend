@@ -17,7 +17,7 @@ const electionSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  // TODO understand ow this is dynamuc
+
   faculty: {
     type: String,
     enum: availableFaculties,
@@ -71,7 +71,10 @@ const electionSchema = new mongoose.Schema({
     },
   },
 
-  // TODO result of the election?
+  result: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Result"
+  },
 
   endTime: {
     type: Date,
