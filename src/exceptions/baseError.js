@@ -34,6 +34,11 @@ class ConflictError extends BaseError {
     super("ConflictError", httpStatus.CONFLICT, true, description);
   }
 }
+class ForbiddenError extends BaseError {
+  constructor(description = "Forbidden") {
+    super("ForbiddenError", httpStatus.FORBIDDEN, true, description);
+  }
+}
 
 module.exports = {
   BaseError,
@@ -41,4 +46,5 @@ module.exports = {
   UnauthorizedError,
   NotFoundError,
   ConflictError,
+  ForbiddenError,
 };

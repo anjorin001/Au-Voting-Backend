@@ -1,9 +1,16 @@
-import { Schema, model, Types } from 'mongoose';
+import mongoose, { model, Schema, Types } from "mongoose";
 
-const ResultSchema = new Schema({
-  election: { type: Types.ObjectId, ref: 'Election', required: true },
-  candidate: { type: Types.ObjectId, ref: 'User', required: true },
-  votes: { type: Number, default: 0 }
-});
+const ResultSchema = new Schema(
+  {
+    election: { type: Types.ObjectId, ref: "Election", required: true },
+    votes: [
+      {
+        candidate: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        vote: { type: Number, default: 0 },
+      },
+    ],
+  },
+  { strict: false }
+);
 
-export const Result = model('Result', ResultSchema);
+export const Result = model("Result", ResultSchema);

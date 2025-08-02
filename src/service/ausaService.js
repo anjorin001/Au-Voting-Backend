@@ -52,7 +52,14 @@ class AusaService {
 
     const election = await Election.findById(electionId)
       .select("result title status candidates general")
-      .populate("candidates", "firstname surname");
+      .populate("candidates", "firstname surname")
+      .populate({
+        path: "result",
+        populate: {
+          path: "candidate",
+          select: "firstname surname",
+        },
+      });
 
     if (!election) throw new NotFoundError("Election not found");
 
@@ -89,10 +96,14 @@ class AusaService {
   }
 
   async createGlbElection(electData, createdBy) {
-    const { title, general, faculty, candidates, startTime, endTime } =
-      electData;
+    const { title, general, faculty, candidates } =
+      electData; //TODO add start and ed ddate back when done with testing
 
     const candidatesValid = await validateCandidate(candidates);
+
+    const now = new Date();
+    const startTime = new Date(now.getTime() + 2 * 60 * 1000); // 2 mins from now
+    const endTime = new Date(now.getTime() + 6 * 60 * 1000); // 5 mins from now
 
     if (candidatesValid) {
       const newElection = await Election.create({
@@ -101,6 +112,7 @@ class AusaService {
         faculty,
         candidates,
         startTime,
+        showLiveResults,
         endTime,
         createdBy,
       });
@@ -166,7 +178,7 @@ class AusaService {
     // TODO send email to user email regarding role onboarding
 
     const plainUser = user.toObject();
-    const { password, participatedElection, bio, ...addedUser } = plainUser;
+    const { password, participatedElection, bio, ...addedUser } = plainUser; //TODO modify participatedElection to votlog
 
     return addedUser;
   }

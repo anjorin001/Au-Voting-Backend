@@ -3,4 +3,4 @@ const verifiedUser = async (user) => {
   return false;
 };
 
-module.exports = verifiedUser
+module.exports = verifiedUser;

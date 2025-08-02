@@ -2,10 +2,15 @@ const { UnauthorizedError } = require("../exceptions/baseError");
 
 function checkRole(requiredRole) {
   return function (req, res, next) {
-    if (req.user?.role !== requiredRole) {
-      return next(new UnauthorizedError("Access denied"));
+    if (!req.user) {
+      return next(new UnauthorizedError("Authentication required"));
     }
-    return next();
+    
+    if (req.user.role === requiredRole) {
+      return next();
+    }
+
+    return next(new UnauthorizedError("Access denied"));
   };
 }
 

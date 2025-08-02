@@ -106,7 +106,7 @@ class userService {
       userId,
       { $set: updatePayload },
       { new: true, runValidators: true }
-    ).select("-password -participatedElection -__v");
+    ).select("-password -__v");
 
     return updatedProfile;
   }

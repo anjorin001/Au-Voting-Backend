@@ -4,7 +4,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node --watch ./src/app.js"
+    "dev": "node --watch ./src/app.js",
+    "userScript": "node ./src/script/userSchemaUpdate.js",
+    "facultySeed": "node ./src/seed/faculty-seed.js",
+    "s-adminSeed": "node ./src/seed/super-admin-seed.js"
   },
   "keywords": [],
   "author": "",
@@ -13,7 +16,8 @@
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
-    "dotenv": "^17.0.1",
+    "cron": "^4.3.3",
+    "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "helmet": "^8.1.0",
     "http-status-codes": "^2.3.0",
@@ -21,6 +25,11 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.16.1",
     "morgan": "^1.10.0",
-    "multer": "^2.0.1"
+    "multer": "^2.0.1",
+    "node-cron": "^4.2.1",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "migrate-mongo": "^12.1.3"
   }
 }

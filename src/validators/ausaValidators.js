@@ -48,6 +48,11 @@ const createGlobalElectionValidator = Joi.object({
     otherwise: Joi.forbidden(),
   }).label("Faculty"),
 
+  showLiveResults: Joi.boolean()
+    .default(false)
+    .required()
+    .label("showLiveResults"),
+
   candidates: Joi.array()
     .items(Joi.string().pattern(/^[0-9a-fA-F]{24}$/))
     .min(2)
@@ -55,12 +60,12 @@ const createGlobalElectionValidator = Joi.object({
     .required()
     .label("Candidates"),
 
-  startTime: Joi.date().min("now").required().label("Start Time"),
+  // startTime: Joi.date().min("now").required().label("Start Time"), //TODO uncomment this after testing electionjob runner
 
-  endTime: Joi.date()
-    .greater(Joi.ref("startTime"))
-    .required()
-    .label("End Time"),
+  // endTime: Joi.date()
+  //   .greater(Joi.ref("startTime"))
+  //   .required()
+  //   .label("End Time"),
 })
   .prefs({ presence: "required" })
   .messages({
@@ -184,14 +189,10 @@ const removeFacultyAdminValidator = Joi.object({
   });
 
 const getFacultiesQueryValidator = Joi.object({
-  facultyId: Joi.string()
-    .optional()
-    .messages({
-      'string.base': 'facultyId must be a string',
-    }),
+  facultyId: Joi.string().optional().messages({
+    "string.base": "facultyId must be a string",
+  }),
 });
-
-
 
 module.exports = {
   globalElectionsQueryValidator,
@@ -203,5 +204,5 @@ module.exports = {
   paginationValidator,
   facultyAdminQueryValidator,
   removeFacultyAdminValidator,
-  getFacultiesQueryValidator
+  getFacultiesQueryValidator,
 };
