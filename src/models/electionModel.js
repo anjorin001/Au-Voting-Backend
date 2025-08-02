@@ -63,12 +63,12 @@ const electionSchema = new mongoose.Schema({
   startTime: {
     type: Date,
     required: true,
-    // validate: {
-    //   validator: function (value) {
-    //     return value >= new Date(Date.now() + 1 * 60 * 1000); // 5 min in future//TODO change 2 min to 5 min after job testing
-    //   },
-    //   message: "Election must start at least 5 minutes from now.",
-    // },
+    validate: {
+      validator: function (value) {
+        return value >= new Date(Date.now() + 5 * 60 * 1000); 
+      },
+      message: "Election must start at least 5 minutes from now.",
+    },
   },
 
   result: {

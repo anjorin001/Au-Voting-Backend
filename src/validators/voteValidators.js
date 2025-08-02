@@ -29,6 +29,21 @@ const voteSchemaValidator = Joi.object({
     }),
 });
 
+
+const electionResultSchema = Joi.object({
+  electionId: Joi.string()
+    .length(24)
+    .hex()
+    .required()
+    .messages({
+      "any.required": "electionId is required",
+      "string.hex": "electionId must be a valid MongoDB ObjectId",
+      "string.length": "electionId must be exactly 24 characters",
+    }),
+});
+
+
 module.exports = {
-    voteSchemaValidator
+  voteSchemaValidator,
+  electionResultSchema
 }

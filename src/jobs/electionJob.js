@@ -1,40 +1,40 @@
-const cron = require('node-cron');
-const Election = require('../models/electionModel');
+const cron = require("node-cron");
+const Election = require("../models/electionModel");
 
 // Run every minute
-cron.schedule('* * * * *', async () => {
+cron.schedule("* * * * *", async () => {
   const now = new Date();
-
+  console.log("🕒 Cron: Checking elections at", new Date().toLocaleString());
+  
   try {
     // ✅ Start elections where startTime has passed and status is still 'pending'
     const electionsToStart = await Election.find({
-      status: 'upcoming',
+      status: "upcoming",
       startTime: { $lte: now },
     });
 
     for (const election of electionsToStart) {
-      election.status = 'ongoing';
-      election.result = ""
+      election.status = "ongoing";
+      election.result = null;
       await election.save();
       console.log(`⏳ Election "${election.title}" started.`);
     }
 
     // ✅ End elections where endTime has passed and status is still 'ongoing'
     const electionsToEnd = await Election.find({
-      status: 'ongoing',
+      status: "ongoing",
       endTime: { $lte: now },
     });
 
     for (const election of electionsToEnd) {
-      election.status = 'ended';
+      election.status = "ended";
       await election.save();
       console.log(`✅ Election "${election.title}" ended.`);
     }
   } catch (err) {
-    console.error('Election cron job error:', err.message);
+    console.error("Election cron job error:", err.message);
   }
 });
-
 
 // TODO send email or notification triggers when elections start or end.
 // 10.25 -10.35

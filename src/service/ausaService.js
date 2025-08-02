@@ -2,6 +2,7 @@ const { NotFoundError, UnauthorizedError } = require("../exceptions/baseError");
 const validateCandidate = require("../helper/candidateChecker");
 const Election = require("../models/electionModel");
 const Faculty = require("../models/facultyModel");
+const { Result } = require("../models/resultModel");
 const User = require("../models/userModel");
 const verifiedUser = require("../util/VerifyChecker");
 
@@ -94,18 +95,19 @@ class AusaService {
 
     return election;
   }
-
   async createGlbElection(electData, createdBy) {
-    const { title, general, faculty, candidates } =
-      electData; //TODO add start and ed ddate back when done with testing
+    const { title, general, faculty, candidates, showLiveResults } = electData;
 
     const candidatesValid = await validateCandidate(candidates);
+    if (!candidatesValid) {
+      throw new Error("Invalid candidate IDs provided.");
+    }
 
     const now = new Date();
     const startTime = new Date(now.getTime() + 2 * 60 * 1000); // 2 mins from now
-    const endTime = new Date(now.getTime() + 6 * 60 * 1000); // 5 mins from now
+    const endTime = new Date(now.getTime() + 6 * 60 * 1000); // 6 mins from now
 
-    if (candidatesValid) {
+    try {
       const newElection = await Election.create({
         title,
         general,
@@ -117,7 +119,19 @@ class AusaService {
         createdBy,
       });
 
+      const votes = candidates.map((cand) => ({
+        candidate: cand,
+        vote: 0,
+      }));
+
+      await Result.create({
+        election: newElection._id,
+        votes,
+      });
+
       return { election: newElection };
+    } catch (err) {
+      throw new Error(`Failed to create election: ${err.message}`);
     }
   }
 

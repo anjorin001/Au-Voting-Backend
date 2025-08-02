@@ -44,16 +44,25 @@ class VoteService {
     if (voted)
       throw new ConflictError("user can only vote once in an election");
 
-    const result = await Result.findOneAndUpdate(
-      { election: data.electionId },
-      {
-        $inc: { "votes.$[elem].vote": 1 },
-      },
-      {
-        arrayFilters: [{ "elem.candidate": data.candidateId }],
-        new: true,
-      }
-    );
+    const existing = await Result.findOne({ election: data.electionId });
+
+    if (!existing) {
+      await Result.create({
+        election: data.electionId,
+        votes: [{ candidate: data.candidateId, vote: 1 }],
+      });
+    } else {
+      const result = await Result.findOneAndUpdate(
+        { election: data.electionId },
+        {
+          $inc: { "votes.$[elem].vote": 1 },
+        },
+        {
+          arrayFilters: [{ "elem.candidate": data.candidateId }],
+          new: true,
+        }
+      );
+    }
 
     await VoteLog.create({
       user: userId,
@@ -62,19 +71,19 @@ class VoteService {
       votedAt: new Date(),
     });
 
-    return result;
+    return true;
   }
   async electionResult(electionId, userId) {
     const user = await User.findById(userId);
     if (!user) throw new NotFoundError("user not found");
 
-    const election = await Election.findById(data.electionId);
+    const election = await Election.findById(electionId);
     if (!election) throw new NotFoundError("election not found");
 
     if (!election.showLiveResults && election.status !== "ended")
       return res.status(403).json({ message: "Live results disabled" });
 
-    const result = await Result.findOne({ election: election._id }).populate("vote.candidate", "firstname surname");
+    const result = await Result.findOne({ election: electionId }).populate("votes.candidate", "firstname surname");
 
     return result;
   }

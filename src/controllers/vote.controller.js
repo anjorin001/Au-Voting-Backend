@@ -14,15 +14,15 @@ const voteCandidate = async (req, res, next) => {
   }
 };
 
-//TODO endpoitnt for users to see results
 const ElectionResults = async (req, res, next) => {
   try {
     const result = await voteService.electionResult(
       req.validated.electionId,
       req.user?.userId
     );
+    console.log("election result", result)
 
-    await sendSuccess(res, "Election result retrieved successfully", 200);
+    await sendSuccess(res, "Election result retrieved successfully", 200, result);
   } catch (err) {
     next(err);
   }
